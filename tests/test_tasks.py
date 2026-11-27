@@ -40,6 +40,11 @@ class TestTasks(unittest.TestCase):
         self.assertEqual([t["titulo"] for t in filtradas], ["Leer capítulo"])
         self.assertEqual(filtradas[0]["categoria"], "estudio")
 
+    def test_filtrar_categoria_inexistente(self):
+        tareas = []
+        agregar_tarea(tareas, "Leer capítulo", "Estudio")
+        self.assertEqual(pendientes(tareas, "categoria-que-no-existe"), [])
+
 
 if __name__ == "__main__":
     unittest.main()
