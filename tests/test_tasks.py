@@ -1,5 +1,5 @@
 import unittest
-from tasks import agregar_tarea, completar_tarea, pendientes
+from tasks import agregar_tarea, completar_tarea, eliminar_tarea, pendientes
 
 
 class TestTasks(unittest.TestCase):
@@ -44,6 +44,37 @@ class TestTasks(unittest.TestCase):
         tareas = []
         agregar_tarea(tareas, "Leer capítulo", "Estudio")
         self.assertEqual(pendientes(tareas, "categoria-que-no-existe"), [])
+
+    def test_eliminar_tarea_existente(self):
+        tareas = []
+        agregar_tarea(tareas, "Primera", "Estudio")
+        agregar_tarea(tareas, "Segunda", "Hogar")
+        agregar_tarea(tareas, "Tercera", "Laboratorio")
+        eliminada = eliminar_tarea(tareas, 2)
+        self.assertEqual(eliminada["id"], 2)
+        self.assertEqual(eliminada["titulo"], "Segunda")
+        self.assertEqual([t["id"] for t in tareas], [1, 3])
+        self.assertEqual([t["titulo"] for t in tareas], ["Primera", "Tercera"])
+
+    def test_agregar_tarea_no_reutiliza_id_eliminado(self):
+        tareas = []
+        agregar_tarea(tareas, "Primera", "Estudio")
+        agregar_tarea(tareas, "Segunda", "Hogar")
+        agregar_tarea(tareas, "Tercera", "Laboratorio")
+        eliminar_tarea(tareas, 2)
+        ids_restantes = [tarea["id"] for tarea in tareas]
+        nueva = agregar_tarea(tareas, "Cuarta", "Estudio")
+        self.assertEqual(nueva["id"], 4)
+        self.assertNotIn(nueva["id"], ids_restantes)
+        self.assertEqual([tarea["id"] for tarea in tareas], [1, 3, 4])
+
+    def test_eliminar_tarea_inexistente(self):
+        tareas = []
+        agregar_tarea(tareas, "Primera", "Estudio")
+        antes = [dict(tarea) for tarea in tareas]
+        with self.assertRaises(ValueError):
+            eliminar_tarea(tareas, 99)
+        self.assertEqual(tareas, antes)
 
 
 if __name__ == "__main__":
