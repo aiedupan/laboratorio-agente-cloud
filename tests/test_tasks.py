@@ -56,6 +56,18 @@ class TestTasks(unittest.TestCase):
         self.assertEqual([t["id"] for t in tareas], [1, 3])
         self.assertEqual([t["titulo"] for t in tareas], ["Primera", "Tercera"])
 
+    def test_agregar_tarea_no_reutiliza_id_eliminado(self):
+        tareas = []
+        agregar_tarea(tareas, "Primera", "Estudio")
+        agregar_tarea(tareas, "Segunda", "Hogar")
+        agregar_tarea(tareas, "Tercera", "Laboratorio")
+        eliminar_tarea(tareas, 2)
+        ids_restantes = [tarea["id"] for tarea in tareas]
+        nueva = agregar_tarea(tareas, "Cuarta", "Estudio")
+        self.assertEqual(nueva["id"], 4)
+        self.assertNotIn(nueva["id"], ids_restantes)
+        self.assertEqual([tarea["id"] for tarea in tareas], [1, 3, 4])
+
     def test_eliminar_tarea_inexistente(self):
         tareas = []
         agregar_tarea(tareas, "Primera", "Estudio")
